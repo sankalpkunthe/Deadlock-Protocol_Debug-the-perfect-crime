@@ -6,7 +6,6 @@ export default function AutopsyReport({ subjectId, tod, cause, notes, rotation =
       className="relative w-full max-w-2xl bg-[#0a0202] border border-red-900/50 p-6 shadow-[8px_8px_0px_rgba(0,0,0,1)] font-mono text-red-500 transition-transform hover:scale-105 flex overflow-hidden"
       style={{ transform: `rotate(${rotation}deg)` }}
     >
-      {/* Deep Red Medical Grid Background */}
       <div className="absolute inset-0 opacity-20 bg-[linear-gradient(to_right,#880000_1px,transparent_1px),linear-gradient(to_bottom,#880000_1px,transparent_1px)] bg-size-[1.5rem_1.5rem] pointer-events-none"></div>
 
       {/* LEFT COLUMN: Body Schematic */}
@@ -15,7 +14,6 @@ export default function AutopsyReport({ subjectId, tod, cause, notes, rotation =
             Fig 1. Trauma Vector
          </div>
          
-         {/* Simple SVG Body Outline */}
          <svg viewBox="0 0 100 200" className="w-24 h-48 stroke-red-800 fill-none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="50" cy="30" r="14" /> {/* Head */}
             <line x1="50" y1="44" x2="50" y2="110" /> {/* Spine */}
@@ -47,7 +45,6 @@ export default function AutopsyReport({ subjectId, tod, cause, notes, rotation =
             </div>
             <div className="flex justify-between border-b border-red-900/20 pb-1">
               <span className="opacity-60 tracking-wider">Cause</span>
-              {/* Highlighting the cause in bright red */}
               <span className="text-red-500 drop-shadow-[0_0_2px_rgba(239,68,68,0.8)] uppercase">
                 {cause}
               </span>
@@ -55,7 +52,6 @@ export default function AutopsyReport({ subjectId, tod, cause, notes, rotation =
           </div>
         </div>
 
-        {/* Notes/Problem Statement Section */}
         <div className="mt-8 text-xs leading-relaxed text-gray-400 whitespace-pre-wrap">
           <span className="block text-[10px] uppercase tracking-widest text-red-800 mb-2">Analysis Notes:</span>
           {notes}

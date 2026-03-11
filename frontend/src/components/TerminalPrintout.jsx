@@ -20,13 +20,11 @@ export default function TerminalPrintout({ logDate, user, content, rotation = 0 
       {/* MAIN Content Area */}
       <div className="flex-1 p-6 flex flex-col">
         
-        {/* Header */}
         <div className="text-center border-b-2 border-black/30 pb-3 mb-4">
           <p className="font-bold tracking-[0.2em] text-sm">*** EVIDENCE LOG ***</p>
           <p className="text-xs opacity-70 mt-1">TERMINAL 42-X</p>
         </div>
 
-        {/* Metadata */}
         <div className="text-xs space-y-1 uppercase mb-6 font-bold opacity-80">
           <div className="flex justify-between border-b border-black/10 pb-1">
             <span>DATE:</span> <span>{logDate}</span>
@@ -36,12 +34,10 @@ export default function TerminalPrintout({ logDate, user, content, rotation = 0 
           </div>
         </div>
 
-        {/* Terminal Body */}
         <div className="text-sm font-bold leading-relaxed whitespace-pre-wrap flex-1">
           {content}
         </div>
 
-        {/* Footer */}
         <div className="mt-6 text-center text-[10px] opacity-50 uppercase tracking-widest">
           END OF TRANSMISSION
         </div>

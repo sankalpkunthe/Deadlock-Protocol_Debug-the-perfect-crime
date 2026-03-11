@@ -8,13 +8,11 @@ export default function PolaroidFrame({ imageSrc, caption, rotation = 0 }) {
     >
       {/* The Red Push Pin */}
       <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-red-600 border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] z-10 group-hover:bg-red-500 transition-colors">
-        {/* Tiny white highlight to make the pin look 3D */}
         <div className="absolute top-px left-px w-1.5 h-1.5 bg-white/60 rounded-full"></div>
       </div>
 
       {/* The Photo Container */}
       <div className="w-full aspect-square bg-black border-2 border-black overflow-hidden relative">
-        {/* If no image is provided, we show a scary static box, otherwise we show the image */}
         {imageSrc ? (
           <img 
             src={imageSrc} 
@@ -31,7 +29,6 @@ export default function PolaroidFrame({ imageSrc, caption, rotation = 0 }) {
         <div className="absolute inset-0 shadow-[inset_0_0_10px_rgba(0,0,0,0.8)] pointer-events-none"></div>
       </div>
 
-      {/* The Caption */}
       <span className="mt-4 font-serif text-sm font-bold text-black text-center tracking-tighter leading-tight decoration-red-600 underline-offset-4 group-hover:underline">
         {caption}
       </span>
