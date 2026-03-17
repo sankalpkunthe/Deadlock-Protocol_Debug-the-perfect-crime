@@ -5,6 +5,8 @@ import PolaroidFrame from '../components/PolaroidFrame';
 import TerminalPrintout from '../components/TerminalPrintout';
 import AutopsyReport from '../components/AutopsyReport';
 import TopNavigation from '../components/TopNavigation';
+import LeftInvestigationBoard from '../components/LeftInvestigationBoard';
+import RightCodeEditor from '../components/RightCodeEditor';
 
 export default function Sandbox() {
   return (
@@ -81,6 +83,10 @@ CONSTRAINTS:
           notes="Fracture detected on cranial parietal bone. Evidence of struggle."
         />
 
+        <LeftInvestigationBoard><PoliceFIR/></LeftInvestigationBoard>
+        
+        <RightCodeEditor />
+        
       </div>
     </div>
   );

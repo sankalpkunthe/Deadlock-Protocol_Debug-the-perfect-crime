@@ -1,11 +1,11 @@
 import React from 'react';
 import Pin from '../components/Pin';
 
-export default function PoliceFIR({ caseId, officer, subject, content, rotation = 0, pinTop = '12px', pinLeft = '50%' }) {
+export default function PoliceFIR({ caseId, officer, subject, content, rotation = 0, scale = 1, pinTop = '12px', pinLeft = '50%' }) {
   return (
     <div 
       className="relative w-full max-w-md bg-[#e5e1d8] p-8 shadow-[8px_8px_0px_rgba(0,0,0,1)] border-2 border-black font-serif text-black overflow-hidden transition-transform hover:scale-105"
-      style={{ transform: `rotate(${rotation}deg)` }}
+      style={{ transform: `rotate(${rotation}deg)`, zoom: scale }}
     >
       <Pin top={pinTop} left={pinLeft} />
       

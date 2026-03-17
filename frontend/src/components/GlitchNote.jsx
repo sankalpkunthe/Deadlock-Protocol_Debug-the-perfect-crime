@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function GlitchNote({ text, rotation = 0 }) {
+export default function GlitchNote({ text, rotation = 0, scale = 1 }) {
   
   const [isRevealed, setIsRevealed] = useState(false);
 
@@ -12,7 +12,7 @@ export default function GlitchNote({ text, rotation = 0 }) {
           ? 'bg-[#eaff00] text-black border-2 border-black' 
           : 'bg-black text-[#ff0055] border-2 border-[#ff0055] hover:bg-[#1a0008]'
         }`}
-      style={{ transform: `rotate(${rotation}deg)` }}
+      style={{ transform: `rotate(${rotation}deg)`, zoom: scale }}
     >
       {/* Semi-transparent Masking Tape at the top */}
       <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-white/30 backdrop-blur-md -rotate-3 border border-white/20"></div>

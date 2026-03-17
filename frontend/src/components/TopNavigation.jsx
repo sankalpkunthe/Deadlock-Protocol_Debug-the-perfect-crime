@@ -1,10 +1,12 @@
 import React from 'react';
+import CredibilityBadge from './CredibilityBadge';
 
 export default function TopNavigation({ 
   currentChapter = 1, 
   chapterName = "The First Cut", 
   currentQuestion = 6, 
-  totalQuestions = 10 
+  totalQuestions = 10,
+  credibility = "green"
 }) {
   const activeQ = Number(currentQuestion);
   const totalQ = Number(totalQuestions);
@@ -85,11 +87,16 @@ export default function TopNavigation({
       </div>
 
       <div className="flex items-center justify-end gap-5 w-1/3">
+
+        <div className='scale-75 origin-right'>
+          <CredibilityBadge status={credibility}/>
+        </div>
+
         <button className="group flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#ec1313]/40 bg-[#ec1313]/10 hover:bg-[#ec1313]/20 transition text-[#ec1313] text-sm font-medium">
           <svg className="w-4 h-4 group-hover:animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          Clues
+          Case Files
         </button>
         
         <div className="relative">

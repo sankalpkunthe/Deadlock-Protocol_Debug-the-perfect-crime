@@ -1,10 +1,10 @@
 import React from 'react';
 
-export default function PolaroidFrame({ imageSrc, caption, rotation = 0 }) {
+export default function PolaroidFrame({ imageSrc, caption, rotation = 0, scale = 1 }) {
   return (
     <div 
       className="relative bg-[#f8f9fa] p-3 pb-10 shadow-[8px_8px_0px_rgba(0,0,0,1)] border-2 border-black w-52 transition-transform hover:scale-105 cursor-pointer group flex flex-col items-center"
-      style={{ transform: `rotate(${rotation}deg)` }}
+      style={{ transform: `rotate(${rotation}deg)`, zoom: scale }}
     >
       {/* The Red Push Pin */}
       <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-red-600 border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] z-10 group-hover:bg-red-500 transition-colors">

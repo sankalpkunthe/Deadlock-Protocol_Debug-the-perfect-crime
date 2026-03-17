@@ -1,16 +1,16 @@
 import React from 'react';
 
-export default function AutopsyReport({ subjectId, tod, cause, notes, rotation = 0 }) {
+export default function AutopsyReport({ subjectId, tod, cause, notes, rotation = 0, scale = 1 }) {
   return (
     <div 
       className="relative w-full max-w-2xl bg-[#0a0202] border border-red-900/50 p-6 shadow-[8px_8px_0px_rgba(0,0,0,1)] font-mono text-red-500 transition-transform hover:scale-105 flex overflow-hidden"
-      style={{ transform: `rotate(${rotation}deg)` }}
+      style={{ transform: `rotate(${rotation}deg)`, zoom: scale }}
     >
       <div className="absolute inset-0 opacity-20 bg-[linear-gradient(to_right,#880000_1px,transparent_1px),linear-gradient(to_bottom,#880000_1px,transparent_1px)] bg-size-[1.5rem_1.5rem] pointer-events-none"></div>
 
       {/* LEFT COLUMN: Body Schematic */}
       <div className="w-1/3 border-r border-red-900/40 pr-6 relative flex flex-col items-center justify-center z-10">
-         <div className="text-[10px] tracking-[0.3em] mb-4 opacity-50 uppercase text-center w-full border-b border-red-900/30 pb-2">
+         <div className="text-[15px] tracking-[0.3em] mb-4 opacity-50 uppercase text-center w-full border-b border-red-900/30 pb-2">
             Fig 1. Trauma Vector
          </div>
          
@@ -34,7 +34,7 @@ export default function AutopsyReport({ subjectId, tod, cause, notes, rotation =
             Medical Examiner Report
           </h2>
           
-          <div className="space-y-4 text-xs font-bold">
+          <div className="space-y-4 text-[16px] font-bold">
             <div className="flex justify-between border-b border-red-900/20 pb-1">
               <span className="opacity-60 tracking-wider">Subject_ID</span>
               <span className="text-gray-300">{subjectId}</span>
@@ -53,7 +53,7 @@ export default function AutopsyReport({ subjectId, tod, cause, notes, rotation =
         </div>
 
         <div className="mt-8 text-xs leading-relaxed text-gray-400 whitespace-pre-wrap">
-          <span className="block text-[10px] uppercase tracking-widest text-red-800 mb-2">Analysis Notes:</span>
+          <span className="block text-[16px] uppercase tracking-widest text-red-800 mb-2">Analysis Notes:</span>
           {notes}
         </div>
       </div>
