@@ -1,15 +1,29 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import CredibilityBadge from './CredibilityBadge';
 
-export default function TopNavigation({ 
-  currentChapter = 1, 
-  chapterName = "The First Cut", 
-  currentQuestion = 6, 
-  totalQuestions = 10,
-  credibility = "green"
+
+export default function TopNavigation({
+  user,
+  currentChapter, 
+  chapterName, 
+  currentQuestion, 
+  totalQuestions,
+  credibility,
+  progress
 }) {
+
+  const navigate = useNavigate();
+
   const activeQ = Number(currentQuestion);
+  const isSameChapter = currentChapter === progress?.chapter;
+
+  const maxUnlocked = isSameChapter
+    ? progress?.question
+    : currentChapter < progress?.chapter
+      ? totalQuestions
+      : 0;
+
   const totalQ = Number(totalQuestions);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
@@ -33,9 +47,10 @@ export default function TopNavigation({
         <div className="flex items-center gap-1 relative">
           {[...Array(totalQ)].map((_, index) => {
             const qNum = index + 1;
-            const isSolved = qNum < activeQ;
+            const isSolved = qNum < maxUnlocked;
             const isCurrent = qNum === activeQ;
-            const isLocked = qNum > activeQ;
+            const isUnlocked = qNum === maxUnlocked;
+            const isLocked = qNum > maxUnlocked;
 
             return (
               <React.Fragment key={index}>
@@ -45,12 +60,19 @@ export default function TopNavigation({
 
                 <div className="relative flex items-center justify-center hover:scale-110 transition-transform duration-300">
                   <button 
+                  onClick={() => {
+                      if (!isLocked) {
+                        navigate(`/sample?chapter=${currentChapter}&question=${qNum}`);
+                      }
+                    }}
                     className={`
                       relative flex items-center justify-center transition-all duration-300 ring-2 ring-[#221010] z-10
                       ${isCurrent ? 'w-10 h-10 rounded-2xl' : 'w-8 h-8 rounded-xl'}
                       ${isSolved ? 'bg-[#ec1313] text-white' : ''}
                       ${isCurrent ? 'bg-[#221010] border-2 border-[#ec1313] text-[#ec1313]' : ''}
+                      ${isUnlocked ? 'bg-[#3a1a1a] border border-[#ec1313]/50 text-white' : ''}
                       ${isLocked ? 'bg-[#2a1515] border border-gray-700 text-gray-600 cursor-not-allowed' : ''}
+                      ${!isLocked ? 'cursor-pointer' : ''}
                       ${isCurrent ? 'shadow-[0_0_15px_rgba(236,19,19,0.5)]' : ''}
                       ${!isCurrent ? 'text-xs font-bold' : 'text-sm font-bold'}
                     `}
@@ -61,7 +83,7 @@ export default function TopNavigation({
                       </svg>
                     )}
                     
-                    {isCurrent && <span>{qNum}</span>}
+                    {!isLocked && !isSolved && <span>{qNum}</span>}
                     
                     {isLocked && (
                       <svg className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,24 +130,27 @@ export default function TopNavigation({
           {showProfileMenu && (
             <div className="absolute right-0 mt-2 w-56 rounded-xl border border-[#ec1313]/25 bg-[#120707]/95 backdrop-blur-sm shadow-[0_12px_30px_rgba(0,0,0,0.55)] p-3">
               <p className="text-xs uppercase tracking-widest text-gray-500">Detective</p>
-              <p className="text-sm font-semibold text-white mt-1">Rahul Javalagi</p>
-              <p className="text-xs text-gray-400 mt-0.5">ID: 002384</p>
+              <p className="text-sm font-semibold text-white mt-1">{user?.name || "Detective"}</p>
+              <p className="text-xs text-gray-400 mt-0.5">ID: {user?.id || "----"}</p>
 
               <div className="mt-3 flex flex-col gap-2">
-                <Link
-                  to="/home"
-                  onClick={() => setShowProfileMenu(false)}
+                <button
+                  
+                  onClick={() => {setShowProfileMenu(false); navigate('/home', { state: { refresh: true } })}}
                   className="w-full text-left px-3 py-2 rounded-lg border border-gray-700 text-gray-200 hover:text-white hover:border-[#ec1313]/50 hover:bg-[#1a0d0d] transition text-sm"
                 >
                   Go to Home
-                </Link>
-                <Link
-                  to="/"
-                  onClick={() => setShowProfileMenu(false)}
+                </button>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    setShowProfileMenu(false);
+                    navigate("/login")
+                  }}
                   className="w-full text-left px-3 py-2 rounded-lg border border-[#ec1313]/40 text-[#fca5a5] hover:text-white hover:bg-[#ec1313]/20 transition text-sm"
                 >
                   Logout
-                </Link>
+                </button>
               </div>
             </div>
           )}

@@ -1,13 +1,26 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import Sandbox from './pages/Sandbox';
 import SamplePage from './pages/SamplePage';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 
+  const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
+
 // A temporary Main Menu to test navigation
 function MainMenu() {
+
+
   return (
     <div className="h-screen w-screen bg-[#0a0202] flex flex-col items-center justify-center font-sans px-4">
       <h1 className="text-4xl text-[#ec1313] font-bold mb-8 tracking-tight text-center">DEADLOCK_PROTOCOL</h1>
@@ -52,9 +65,9 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainMenu />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/sample" element={<SamplePage />} />
-        <Route path="/sandbox" element={<Sandbox />} />
+        <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+        <Route path="/sample" element={<ProtectedRoute><SamplePage /></ProtectedRoute>} />
+        <Route path="/sandbox" element={<ProtectedRoute><Sandbox /></ProtectedRoute>} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
       </Routes>

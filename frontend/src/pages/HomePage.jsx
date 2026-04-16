@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const TOTAL_CHAPTERS = 5;
 const QUESTIONS_PER_CHAPTER = 10;
@@ -7,12 +7,6 @@ const MAX_PROGRESS_POINTER = TOTAL_CHAPTERS * QUESTIONS_PER_CHAPTER;
 
 // Single source of truth for chapter/question progression.
 // 1 -> Chapter 1 Question 1, 39 -> Chapter 4 Question 9, >50 all complete, <1 all locked.
-const STORY_PROGRESS_POINTER = 22;
-
-const DETECTIVE_PROFILE = {
-  name: 'Rahul Javalagi',
-  id: '002384',
-};
 
 const CHAPTERS = [
   {
@@ -214,8 +208,41 @@ function QuestionRoadmap({
 }
 
 export default function HomePage() {
+  const [user, setUser] = useState(null);
+  const location = useLocation();
+
+  const [progressPointer, setProgressPointer] = useState(1);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res1 = await fetch("http://localhost:5000/progress", {
+          headers: { Authorization: token }
+        });
+        const data1 = await res1.json();
+        const calculatedPointer = ((data1.chapter - 1) * 10) + data1.question;
+        setProgressPointer(calculatedPointer);
+
+        
+        const res2 = await fetch("http://localhost:5000/me", {
+          headers: { Authorization: token }
+        });
+        const data2 = await res2.json();
+        setUser(data2);
+
+      } catch (err) {
+        console.error("Error fetching data", err);
+      }
+    };
+    
+      fetchData();
+  }, [location]);
+
   const navigate = useNavigate();
-  const storyState = deriveStoryState(STORY_PROGRESS_POINTER);
+  const storyState = deriveStoryState(progressPointer);
 
   const [openChapterId, setOpenChapterId] = useState(() => {
     if (storyState.currentChapter) {
@@ -244,7 +271,7 @@ export default function HomePage() {
     [storyState]
   );
 
-  const solvedCases = calculateSolvedCases(STORY_PROGRESS_POINTER);
+  const solvedCases = calculateSolvedCases(progressPointer);
   const activeCaseLabel = storyState.allCompleted
     ? 'All chapters completed'
     : storyState.hasStarted
@@ -270,8 +297,11 @@ export default function HomePage() {
                 DEADLOCK_PROTOCOL
               </h1>
 
-              <Link
-                to="/"
+              <button
+                onClick={() => {
+                  localStorage.removeItem("token");
+                  navigate("/login")
+                }}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[#ec1313]/45 bg-[#ec1313]/10 text-[#fca5a5] text-sm font-semibold hover:bg-[#ec1313]/20 hover:text-white transition"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,7 +309,7 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5H6a2 2 0 00-2 2v10a2 2 0 002 2h7" />
                 </svg>
                 Logout
-              </Link>
+              </button>
             </div>
 
             <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
@@ -287,13 +317,13 @@ export default function HomePage() {
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
                 className="text-3xl md:text-5xl font-semibold tracking-tight text-gray-400"
               >
-                Detective: <span className="text-white">{DETECTIVE_PROFILE.name}</span>
+                Detective: <span className="text-white">{user?.name || "Detective"}</span>
               </p>
               <p
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
                 className="text-xl md:text-3xl font-medium text-gray-400"
               >
-                ID: <span className="text-white">{DETECTIVE_PROFILE.id}</span>
+                ID: <span className="text-white">{user?.id || "----"}</span>
               </p>
             </div>
 

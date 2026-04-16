@@ -1,17 +1,102 @@
 import React, { useState } from 'react';
+import Editor from "@monaco-editor/react";
+import { useNavigate } from "react-router-dom";
 
-export default function RightCodeEditor() {
+
+export default function RightCodeEditor({ chapter, question, setProgress }) {
+  const navigate = useNavigate();
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [language, setLanguage] = useState('javascript');
-  const [code, setCode] = useState(`function isPalindrome(str) {
-  const cleanStr = str.toLowerCase().replace(/[\\W_]/g, '');
-  const reverseStr = cleanStr.split('').reverse().join('');
-  return cleanStr === reverseStr;
-}
+  const [code, setCode] = useState(`//Editable
 
-console.log(isPalindrome("Red rum, sir, is murder"));`);
+console.log("Hello javascript");`);
+  const [customInput, setCustomInput] = useState(""); 
+  const [output, setOutput] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [customInput, setCustomInput] = useState(`"A man, a plan, a canal: Panama"`);
+  const runCode = async () => { 
+    try { 
+      const res = await fetch("http://localhost:5000/run-test", { 
+        method: "POST", 
+        headers: { 
+          "Content-Type": "application/json" 
+        }, 
+        body: JSON.stringify({ 
+          language, 
+          code,
+          input: customInput
+        }) 
+      }); 
+
+      const data = await res.json(); 
+      setOutput(data.output); 
+    } catch (err) { 
+      setOutput("Error running code", err); 
+    }
+  };
+
+  const submitCode = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      setLoading(true);
+      const res = await fetch("http://localhost:5000/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token
+        },
+        body: JSON.stringify({
+          chapter: chapter,
+          question: question,
+          language,
+          code
+        })
+      });
+
+      setLoading(false);
+      const data = await res.json();
+
+      if(data.correct) {
+        setOutput("All test cases passed.. Moving to solve next case!!");
+        const res2 = await fetch("http://localhost:5000/progress", {
+        headers: { Authorization: token }
+      });
+
+      const updatedProgress = await res2.json();
+      setProgress(updatedProgress);
+
+        setTimeout(() => {
+          setCode(`//Editable
+
+console.log("Hello javascript");`);
+
+          setCustomInput("");
+          setOutput("");
+          if (question < 10) {
+            navigate(`/sample?chapter=${chapter}&question=${question + 1}`);
+          } else {
+            navigate(`/home`, { state: { refresh: true } });
+          }
+        }, 1500);
+      } else {
+        let msg = "❌ Some test cases failed\n\n";
+
+        data.results.forEach((r, i) => {
+          msg += `Test ${i+1}: ${r.passed ? "✅" : "❌"}\n`;
+          if (!r.passed) {
+            msg += `Expected: ${r.expected}\n`;
+            msg += `Got: ${r.output}\n\n`;
+          }
+        });
+
+        setOutput(msg);
+      }
+
+    } catch (err) {
+      setOutput("Submission error", err);
+    }
+  };
+
 
   return (
     <section className="w-1/2 h-full flex flex-col bg-[#1a0b0b] relative z-10 font-mono border-l border-[#ec1313]/20">
@@ -19,7 +104,7 @@ console.log(isPalindrome("Red rum, sir, is murder"));`);
       <div className="h-10 bg-[#110808] border-b border-gray-800 flex items-center justify-between px-4 select-none shrink-0">
         <div className="flex items-center h-full gap-1">
           <div className="h-full px-4 flex items-center bg-[#1a0b0b] border-t-2 border-[#ec1313] text-gray-300 text-xs">
-            solution.{language === 'python' ? 'py' : language === 'cpp' ? 'cpp' : language === 'java' ? 'java' : 'js'}
+            solution.{language === 'cpp' ? 'cpp' : language === 'java' ? 'java' : language === 'c' ? 'c' : language === 'python' ? 'py' : 'js'}
           </div>
         </div>
         
@@ -30,13 +115,60 @@ console.log(isPalindrome("Red rum, sir, is murder"));`);
             </svg>
             <select 
               value={language}
-              onChange={(e) => setLanguage(e.target.value)}
+              onChange={(e) => {
+                const lang = e.target.value;
+                setLanguage(lang);
+
+                if (lang === "cpp") {
+                  setCode(`//Editable
+
+#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Hello C++" << endl;
+    return 0;
+}`);
+                } 
+
+                else if(lang === "python") {
+                  setCode(`#Editable
+
+print("Hello python")`);
+                }
+
+                else if (lang === "c") {
+                  setCode(`//Editable
+
+#include <stdio.h>
+
+int main() {
+    printf("Hello C");
+    return 0;
+}`);
+                } 
+                else if (lang === "java") {
+                  setCode(`//Editable
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello java");
+}
+}`);
+                } 
+                else {
+                  setCode(`//Editable
+
+console.log("Hello javascript");`);
+                }
+              }}
               className="appearance-none bg-[#1a0b0b] border border-gray-700 text-gray-300 text-xs py-1 pl-7 pr-6 rounded focus:outline-none focus:border-[#ec1313] cursor-pointer"
             >
-              <option value="javascript">JavaScript</option>
-              <option value="python">Python 3</option>
               <option value="cpp">C++</option>
+              <option value="javascript">JavaScript</option>
+              <option value="python">Python</option>
               <option value="java">Java</option>
+              <option value="c">C</option>
             </select>
             <svg className="w-3 h-3 text-gray-500 absolute right-2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -56,20 +188,23 @@ console.log(isPalindrome("Red rum, sir, is murder"));`);
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden relative">
-        <div className="w-12 bg-[#110808] border-r border-gray-800 flex flex-col items-end py-4 pr-2 text-gray-700 text-sm select-none shrink-0">
-          {[...Array(20)].map((_, i) => (
-            <span key={i} className="leading-6">{i + 1}</span>
-          ))}
-        </div>
-        
-        <textarea
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          spellCheck="false"
-          className="flex-1 bg-transparent text-gray-300 p-4 text-sm leading-6 outline-none resize-none investigation-scroll whitespace-pre font-mono"
-        />
-      </div>
+      <div className="flex-1"> 
+        <Editor 
+          height="100%" 
+          theme="vs-dark"
+          language={ 
+            language === "cpp" ? "cpp" : 
+            language === "java" ? "java" : 
+            language === "c" ? "c" : 
+            language === "python" ? "python" : "javascript"
+            } 
+          value={code} 
+          onChange={(value) => setCode(value || "")} 
+          options={{ fontSize: 14, minimap: { enabled: false }, 
+          wordWrap: "on", scrollBeyondLastLine: false, 
+          automaticLayout: true, }} 
+        /> 
+      </div>      
 
       <div className="h-14 bg-[#110808] border-t border-b border-gray-800 flex items-center justify-between px-4 shrink-0 z-20">
         <button 
@@ -86,18 +221,23 @@ console.log(isPalindrome("Red rum, sir, is murder"));`);
         </button>
 
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 rounded bg-[#2a1515] border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500 transition-colors text-sm">
+          <button 
+            onClick={runCode}
+            className="flex items-center gap-2 px-4 py-2 rounded bg-[#2a1515] border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500 transition-colors text-sm">
             <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
             </svg>
             Run Forensics
           </button>
           
-          <button className="flex items-center gap-2 px-5 py-2 rounded bg-[#ec1313] hover:bg-red-600 text-white font-bold shadow-[0_0_15px_rgba(236,19,19,0.3)] hover:shadow-[0_0_20px_rgba(236,19,19,0.5)] transition-all transform hover:scale-105 active:scale-95 text-sm tracking-wider">
+          <button 
+            onClick={submitCode}
+            className="flex items-center gap-2 px-5 py-2 rounded bg-[#ec1313] hover:bg-red-600 text-white font-bold shadow-[0_0_15px_rgba(236,19,19,0.3)] hover:shadow-[0_0_20px_rgba(236,19,19,0.5)] transition-all transform hover:scale-105 active:scale-95 text-sm tracking-wider"
+          >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
             </svg>
-            SUBMIT VERDICT
+            {loading ? "SUBMITTING..." : "SUBMIT VERDICT"}
           </button>
         </div>
       </div>
@@ -125,25 +265,9 @@ console.log(isPalindrome("Red rum, sir, is murder"));`);
           <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
         </div>
 
-        <div className="p-4 text-xs overflow-y-auto flex-1 text-gray-300 investigation-scroll">
-          <div className="mb-2">
-            <span className="text-green-500">user@detective-console:~$</span> node solution.js
-          </div>
-          <div className="mb-2 pl-4 border-l-2 border-green-500/30">
-            <span className="block">Running tests...</span>
-            <span className="block text-green-400">✓ Test Case 1: "racecar" passed</span>
-            <span className="block text-green-400">✓ Test Case 2: "Level" passed</span>
-            <span className="block text-red-500">✕ Test Case 3: "Not a match" failed</span>
-            <span className="block text-gray-500 mt-1">Expected: false | Received: undefined</span>
-          </div>
-          <div className="mt-4 text-[#ec1313] animate-pulse">
-            SYSTEM ALERT: 2 Attempts remaining before lockout.
-          </div>
-          <div className="flex items-center gap-1 mt-2">
-            <span className="text-green-500">user@detective-console:~$</span>
-            <span className="w-2 h-4 bg-gray-500 animate-pulse"></span>
-          </div>
-        </div>
+        <div className="p-4 text-sm text-green-400 whitespace-pre-wrap overflow-y-auto flex-1">
+  {output || "Run your code to see output..."}
+</div>
       </div>
     </section>
   );

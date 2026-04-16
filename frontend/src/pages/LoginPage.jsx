@@ -1,7 +1,39 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
+
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+
+      if(!res.ok) {
+        setError(data || "Login Failed");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      navigate("/sample");
+    
+    } catch (err) {
+      setError("Server Error", err.message);
+    }
+  };
+
   return (
     <div className="h-screen w-screen bg-[#0a0202] text-white font-sans overflow-x-hidden overflow-y-auto md:overflow-y-hidden">
       <main className="relative min-h-screen md:h-full flex flex-col">
@@ -26,12 +58,16 @@ export default function LoginPage() {
             <h2 className="text-2xl font-bold text-white">Login</h2>
             <p className="text-sm text-gray-400 mt-1">Re-enter the investigation and continue your case timeline.</p>
 
-            <form className="mt-5 space-y-3">
+            <form className="mt-5 space-y-3"
+              onSubmit={(e) => e.preventDefault()}
+            >
               <div>
                 <label className="block text-xs uppercase tracking-[0.2em] text-gray-400 mb-2">Email</label>
                 <input
                   type="email"
                   placeholder="detective@deadlock.io"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full rounded-lg border border-gray-700 bg-[#0f0606] px-4 py-3 text-sm text-white outline-none focus:border-[#ec1313] transition"
                 />
               </div>
@@ -41,12 +77,19 @@ export default function LoginPage() {
                 <input
                   type="password"
                   placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => {setPassword(e.target.value)}}
                   className="w-full rounded-lg border border-gray-700 bg-[#0f0606] px-4 py-3 text-sm text-white outline-none focus:border-[#ec1313] transition"
                 />
               </div>
 
+              {error && ( 
+                <p className="text-red-400 text-sm">{error}</p> 
+              )}
+
               <button
                 type="button"
+                onClick={handleLogin}
                 className="w-full mt-2 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg border border-[#ec1313]/55 bg-[#ec1313] text-white text-sm font-bold hover:bg-red-600 transition shadow-[0_0_15px_rgba(236,19,19,0.35)]"
               >
                 Enter Investigation
