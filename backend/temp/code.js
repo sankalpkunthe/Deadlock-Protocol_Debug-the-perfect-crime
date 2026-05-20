@@ -1,15 +1,36 @@
-function isPalindrome(s) {
-  // remove non-alphanumeric + convert to lowercase
-  let clean = s.toLowerCase().replace(/[^a-z0-9]/g, "");
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+using namespace std;
 
-  // reverse and compare
-  let reversed = clean.split("").reverse().join("");
+int main() {
+    vector<int> nums;
+    char ch;
 
-  return clean === reversed;
+    cin >> ch;
+
+    int num;
+    while (cin >> num) {
+        nums.push_back(num);
+        cin >> ch;
+        if (ch == ']') break;
+    }
+
+    int target;
+    cin >> target;
+
+    unordered_map<int, int> mp;
+
+    for (int i = 0; i < nums.size(); i++) {
+        int complement = target - nums[i];
+
+        if (mp.find(complement) != mp.end()) {
+            cout << "[" << mp[complement] << "," << i << "]";
+            return 0;
+        }
+
+        mp[nums[i]] = i;
+    }
+
+    return 0;
 }
-
-
-// for your judge (stdin style)
-const input = require("fs").readFileSync(0, "utf-8").trim();
-
-console.log(isPalindrome(input));

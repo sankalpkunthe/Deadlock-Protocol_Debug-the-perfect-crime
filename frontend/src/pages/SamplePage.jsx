@@ -18,12 +18,35 @@ export default function SamplePage() {
   const [params] = useSearchParams();
   const [progress, setProgress] = useState(null);
 
+
+
+
   const chapter = Number(params.get("chapter")) || 1;
   const question = Number(params.get("question")) || 1;
+
+  const key = user ? `lives-${user.id}` : "lives-temp";
+
 
   const caseData = cases[chapter]?.questions[question];
   const chapterData = cases[chapter];
 
+  const [lives, setLives] = useState(() => {
+  const token = localStorage.getItem("token");
+    if (!token) return 3;
+
+    try {
+      const userId = JSON.parse(atob(token.split(".")[1])).id;
+      const saved = localStorage.getItem(`lives-${userId}`);
+      return saved !== null ? Number(saved) : 3;
+    } catch {
+      return 3;
+    }
+  });
+
+  useEffect(() => {
+    if (!user) return;
+    localStorage.setItem(`lives-${user.id}`, lives);
+  }, [lives, user]);
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -97,7 +120,7 @@ export default function SamplePage() {
           chapterName={chapterData?.title} 
           currentQuestion={question} 
           totalQuestions={10}
-          credibility='green'
+          credibility={lives}
           progress={progress}
         />
       </div>
@@ -138,14 +161,20 @@ export default function SamplePage() {
             notes={caseData?.autopsy?.notes}/>
             
             <TerminalPrintout
-                      rotation={3}
-                      scale={.8}
-                      logDate={today}
-                      user="ADMIN"
-                      content={caseData?.terminal}
-                    />
+              rotation={3}
+              scale={.8}
+              logDate={today}
+              user="ADMIN"
+              content={caseData?.terminal}
+            />
 
-            <GlitchNote text={caseData?.glitch} rotation={4}/>
+            <GlitchNote 
+              text={caseData?.glitch} 
+              rotation={4}
+              lives={lives}
+              setLives={setLives}
+              user={user}
+              />
           </div>
 
         </LeftInvestigationBoard>

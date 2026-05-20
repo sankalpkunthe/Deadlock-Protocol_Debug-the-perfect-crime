@@ -1,4 +1,10 @@
-export default function CredibilityBadge({ status = 'green' }) {
+export default function CredibilityBadge({ lives = 3 }) {
+
+
+    let status = "green";
+
+    if (lives === 2) status = "yellow";
+    if (lives <= 1) status = "red";
 
     const config = {
         green: {

@@ -1,12 +1,29 @@
 import { useState } from 'react';
 
-export default function GlitchNote({ text, rotation = 0, scale = 1 }) {
+export default function GlitchNote({ text, rotation = 0, scale = 1, lives, setLives, user }) {
   
-  const [isRevealed, setIsRevealed] = useState(false);
+  const key = `hint-${user?.id}-${window.location.search}`;
+
+  const [isRevealed, setIsRevealed] = useState(() => {
+    return localStorage.getItem(key) === "true";
+  });
+
+  const handleClick = () => {
+    if(isRevealed) return;
+
+    if(lives<=0){
+      alert("No credibility left..");
+      return;
+    }
+
+    setIsRevealed(true);
+    localStorage.setItem(key, "true");
+    setLives(prev => prev - 1);
+  }
 
   return (
     <div 
-      onClick={() => setIsRevealed(true)}
+      onClick={handleClick}
       className={`relative w-56 min-h-50 p-5 cursor-pointer transition-all duration-100 shadow-[6px_6px_0px_rgba(0,0,0,1)] font-mono flex flex-col items-center justify-center text-center select-none
         ${isRevealed 
           ? 'bg-[#eaff00] text-black border-2 border-black' 

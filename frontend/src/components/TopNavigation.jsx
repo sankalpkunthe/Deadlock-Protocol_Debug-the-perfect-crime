@@ -108,7 +108,7 @@ export default function TopNavigation({
       <div className="flex items-center justify-end gap-5 w-1/3">
 
         <div className='scale-75 origin-right'>
-          <CredibilityBadge status={credibility}/>
+          <CredibilityBadge lives={credibility}/>
         </div>
         
         <div className="relative">

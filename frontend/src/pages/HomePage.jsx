@@ -323,7 +323,7 @@ export default function HomePage() {
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
                 className="text-xl md:text-3xl font-medium text-gray-400"
               >
-                ID: <span className="text-white">{user?.id || "----"}</span>
+                ID: <span className="text-white">{user?.id.slice(0, 6) || "----"}</span>
               </p>
             </div>
 

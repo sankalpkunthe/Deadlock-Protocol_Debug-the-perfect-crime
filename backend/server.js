@@ -73,7 +73,25 @@ function runCode(language, code, input="") {
 app.post("/run-test", async (req, res) => {
   const { language, code, input } = req.body;
 
-  const output = await runCode(language, code, input);
+  let inputStr = "";
+
+  if (input) {
+    if (typeof input === "object") {
+      for (let key in input) {
+        const value = input[key];
+
+        if (Array.isArray(value)) {
+          inputStr += `[${value.join(",")}]\n`;
+        } else {
+          inputStr += value + "\n";
+        }
+      }
+    } else {
+      inputStr = String(input);
+    }
+  }
+
+  const output = await runCode(language, code, inputStr);
 
   res.json({ output });
 });
@@ -155,7 +173,6 @@ app.post('/submit', auth, async (req, res) => {
       [chapter, question]
     );
 
-
     if (tests.rows.length === 0) {
       return res.status(404).send("No test cases found");
     }
@@ -164,13 +181,48 @@ app.post('/submit', auth, async (req, res) => {
     let results = []
 
     for (const test of tests.rows) {
-      const output = await runCode(language, code, test.input);
 
-      const passed = output.trim() === test.expected_output.trim();
+      let inputStr = "";
+
+      if (test.input) {
+        if (typeof test.input === "object") {
+          for (let key in test.input) {
+            const value = test.input[key];
+
+            if (Array.isArray(value)) {
+              inputStr += `[${value.join(",")}]\n`;
+            } else {
+              inputStr += value + "\n";
+            }
+          }
+        } else {
+          inputStr = String(test.input);
+        }
+      }
+
+      const output = await runCode(language, code, inputStr);
+
+      let passed = false;
+
+      try {
+        const userOut = JSON.parse(output);
+
+        const expectedOut =
+          typeof test.expected_output === "string"
+            ? JSON.parse(test.expected_output)
+            : test.expected_output;
+
+        passed =
+          userOut.k === expectedOut.k &&
+          JSON.stringify(userOut.nums) === JSON.stringify(expectedOut.nums);
+
+      } catch {
+        passed = output.trim() === String(test.expected_output).trim();
+      }
 
       results.push({
         input: test.input,
-        expected: test.expected_output,
+        expected: JSON.stringify(test.expected_output),
         output,
         passed
       });
@@ -187,7 +239,6 @@ app.post('/submit', auth, async (req, res) => {
       VALUES ($1, $2, $3, $4, $5, $6)`,
       [user_id, chapter, question, code, JSON.stringify(results), allPassed]
     );
-
 
     res.json({
       correct: allPassed,
